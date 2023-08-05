@@ -40,7 +40,7 @@ let AppModule = exports.AppModule = class AppModule {
             cookie: {
                 sameSite: true,
                 httpOnly: false,
-                maxAge: 60000,
+                maxAge: 600000000,
             },
         }), passport.initialize(), passport.session())
             .forRoutes('*');

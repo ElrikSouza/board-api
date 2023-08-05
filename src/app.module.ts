@@ -47,7 +47,7 @@ export class AppModule {
           cookie: {
             sameSite: true,
             httpOnly: false,
-            maxAge: 60000,
+            maxAge: 600000000,
           },
         }),
         passport.initialize(),

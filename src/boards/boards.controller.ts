@@ -38,7 +38,7 @@ export class BoardsController {
   patchOne(
     @GetUser() user: User,
     @Param('id') id: string,
-    boardDTO: CreateBoardDTO,
+    @Body() boardDTO: CreateBoardDTO,
   ) {
     return this.boardsService.updateBoard(user.id, id, boardDTO);
   }
