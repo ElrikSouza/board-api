@@ -1,6 +1,5 @@
 import { Body, Controller, Get, Post, Req, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { LoginDTO } from './dtos/login.dto';
 import { SignUpDTO } from './dtos/signup.dto';
 import { LocalGuard } from './local.guard';
 import { LoggedInGuard } from './logged-in.guard';
@@ -15,13 +14,13 @@ export class AuthController {
 
   @Post('login')
   @UseGuards(LocalGuard)
-  async login(@Req() req, @Body() loginDTO: LoginDTO) {
+  async login(@Req() req) {
     return req.session;
   }
 
   @Get('me')
   @UseGuards(LoggedInGuard)
-  async me() {
-    return 'me';
+  async me(@Req() req) {
+    return req.user;
   }
 }
