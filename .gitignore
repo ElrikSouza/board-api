@@ -1,5 +1,6 @@
 node_modules/
 .pgdata-dev/
+pgdata-dev/
 
-dist/**
+dist
 *.env
