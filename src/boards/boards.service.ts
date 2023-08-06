@@ -24,11 +24,18 @@ export class BoardsService {
   }
 
   getUserBoards(userId: string) {
-    return this.boardRepo.findBy({ userId });
+    return this.boardRepo.find({
+      where: { userId },
+      relations: { columns: false },
+    });
   }
 
   async getOneBoard(userId: string, boardId: string) {
-    const board = await this.boardRepo.findOneBy({ userId, id: boardId });
+    const board = await this.boardRepo.findOne({
+      where: { userId, id: boardId },
+      relations: { columns: { cards: true } },
+    });
+
     return this.mightHaveFoundBoard(board);
   }
 

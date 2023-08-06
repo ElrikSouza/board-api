@@ -8,5 +8,6 @@ import { Board } from './entities/board.entity';
   controllers: [BoardsController],
   providers: [BoardsService],
   imports: [TypeOrmModule.forFeature([Board])],
+  exports: [BoardsService],
 })
 export class BoardsModule {}
