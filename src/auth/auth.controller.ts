@@ -15,7 +15,7 @@ export class AuthController {
   @Post('login')
   @UseGuards(LocalGuard)
   async login(@Req() req) {
-    return req.session;
+    return req.session.passport.user;
   }
 
   @Get('me')
