@@ -50,9 +50,11 @@ export class AppModule {
           secret: 'sup3rs3cr3t',
           resave: false,
           cookie: {
-            sameSite: true,
+            sameSite: false,
             httpOnly: false,
             maxAge: 600000000,
+            secure: false,
+            path: '/',
           },
         }),
         passport.initialize(),
