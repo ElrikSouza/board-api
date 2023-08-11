@@ -13,10 +13,10 @@ export class BoardColumnsService {
     private readonly boardsService: BoardsService,
   ) {}
 
-  async getOneBoardColumn(userId: string, colId: string) {
+  async getOneBoardColumn(userId: string, colId: string, cards = false) {
     const boardCol = this.boardColRepo.findOne({
       where: { id: colId, userId },
-      relations: { cards: false },
+      relations: { cards },
     });
 
     if (!boardCol) {
@@ -53,6 +53,7 @@ export class BoardColumnsService {
     boardColDTO: CreateBoardColumnDTO,
   ) {
     const originalCol = await this.getOneBoardColumn(userId, colId);
-    return this.boardColRepo.update(originalCol, boardColDTO);
+    await this.boardColRepo.update(originalCol.id, boardColDTO);
+    return this.getOneBoardColumn(userId, colId);
   }
 }

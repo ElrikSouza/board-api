@@ -14,16 +14,16 @@ import { BoardColumnsService } from './board-columns.service';
 import { CreateBoardColumnDTO } from './dto/create-board-col.dto';
 
 @UseGuards(LoggedInGuard)
-@Controller('boards/:boardId/board-columns')
+@Controller()
 export class BoardColumnsController {
   constructor(private readonly boardColumnsService: BoardColumnsService) {}
 
-  @Delete(':id')
+  @Delete('board-columns/:id')
   deleteOne(@GetUser() user: User, @Param('id') id: string) {
     return this.boardColumnsService.deleteOneColumn(user.id, id);
   }
 
-  @Post()
+  @Post('boards/:boardId/board-columns')
   createOne(
     @GetUser() user: User,
     @Param('boardId') boardId: string,
@@ -32,7 +32,7 @@ export class BoardColumnsController {
     return this.boardColumnsService.createOneColumn(user.id, boardId, boardCol);
   }
 
-  @Patch()
+  @Patch('board-columns/:id')
   patchOne(
     @GetUser() user: User,
     @Param('id') colId: string,
