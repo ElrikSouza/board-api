@@ -13,8 +13,13 @@ export class Card {
   @Column({ nullable: true })
   description: string;
 
-  @ManyToOne(() => BoardColumn, (column) => column.cards)
+  @ManyToOne(() => BoardColumn, (column) => column.cards, {
+    onDelete: 'CASCADE',
+  })
   column: BoardColumn;
+
+  @Column()
+  columnId: string;
 
   @Column()
   userId: string;

@@ -23,7 +23,10 @@ export class BoardColumn {
   @Column()
   boardId: string;
 
-  @OneToMany(() => Card, (card) => card.column, { cascade: true, eager: true })
+  @OneToMany(() => Card, (card) => card.column, {
+    cascade: true,
+    eager: true,
+  })
   cards: Card[];
 
   @Column()

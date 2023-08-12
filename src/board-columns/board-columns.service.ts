@@ -28,7 +28,7 @@ export class BoardColumnsService {
 
   async deleteOneColumn(userId: string, colId: string) {
     const boardCol = await this.getOneBoardColumn(userId, colId);
-    await this.boardColRepo.delete(boardCol);
+    await this.boardColRepo.delete(boardCol.id);
   }
 
   async createOneColumn(
