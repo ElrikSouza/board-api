@@ -39,6 +39,17 @@ export class BoardsService {
     return this.mightHaveFoundBoard(board);
   }
 
+  async getBoardOwnerId(boardId: string) {
+    const result = await this.boardRepo.findOne({
+      select: ['userId'],
+      where: { id: boardId },
+    });
+
+    this.mightHaveFoundBoard(result);
+
+    return result.userId;
+  }
+
   async deleteOneBoard(userId: string, boardId: string) {
     const board = await this.getOneBoard(userId, boardId);
     await this.boardRepo.delete(board);

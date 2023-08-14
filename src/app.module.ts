@@ -9,6 +9,7 @@ import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { AuthModule } from './auth/auth.module';
 import { BoardColumnsModule } from './board-columns/board-columns.module';
+import { BoardMembersModule } from './boards/board-members/board-members.module';
 import { BoardsModule } from './boards/boards.module';
 import { CardsModule } from './cards/cards.module';
 import { REDIS_CLIENT } from './redis/client.const';
@@ -34,6 +35,7 @@ import { UsersModule } from './users/users.module';
     RedisModule,
     BoardColumnsModule,
     CardsModule,
+    BoardMembersModule,
   ],
   controllers: [AppController],
   providers: [AppService],

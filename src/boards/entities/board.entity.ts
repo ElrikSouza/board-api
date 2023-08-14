@@ -1,4 +1,5 @@
 import { BoardColumn } from 'src/board-columns/board-column.entity';
+import { BoardMembership } from 'src/boards/board-members/board-membership.entity';
 import { User } from 'src/users/user.entity';
 import {
   Column,
@@ -24,4 +25,7 @@ export class Board {
 
   @OneToMany(() => BoardColumn, (col) => col.board)
   columns: BoardColumn[];
+
+  @OneToMany(() => BoardMembership, (membership) => membership.board)
+  members: BoardMembership[];
 }
