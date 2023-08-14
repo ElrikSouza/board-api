@@ -1,4 +1,4 @@
-import { BoardColumn } from 'src/board-columns/board-column.entity';
+import { BoardColumn } from 'src/boards/board-columns/board-column.entity';
 import { BoardMembership } from 'src/boards/board-members/board-membership.entity';
 import { User } from 'src/users/user.entity';
 import {

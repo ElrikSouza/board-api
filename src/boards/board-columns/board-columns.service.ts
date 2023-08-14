@@ -13,6 +13,22 @@ export class BoardColumnsService {
     private readonly boardsService: BoardsService,
   ) {}
 
+  async getBoardOwnerAndBoardIdOfColumn(colId: string) {
+    const col = await this.boardColRepo.findOne({
+      where: { id: colId },
+      select: ['board'],
+    });
+
+    if (!col) {
+      throw new NotFoundException('');
+    }
+    const { userId, id } = col.board;
+    return {
+      boardId: id,
+      ownerId: userId,
+    };
+  }
+
   async getOneBoardColumn(userId: string, colId: string, cards = false) {
     const boardCol = this.boardColRepo.findOne({
       where: { id: colId, userId },
@@ -26,9 +42,8 @@ export class BoardColumnsService {
     return boardCol;
   }
 
-  async deleteOneColumn(userId: string, colId: string) {
-    const boardCol = await this.getOneBoardColumn(userId, colId);
-    await this.boardColRepo.delete(boardCol.id);
+  async deleteOneColumn(colId: string) {
+    await this.boardColRepo.delete(colId);
   }
 
   async createOneColumn(
@@ -36,8 +51,6 @@ export class BoardColumnsService {
     boardId: string,
     boardColDTO: CreateBoardColumnDTO,
   ) {
-    await this.boardsService.getOneBoard(userId, boardId);
-
     const newBoardCol = this.boardColRepo.create({
       ...boardColDTO,
       userId,
@@ -52,8 +65,7 @@ export class BoardColumnsService {
     colId: string,
     boardColDTO: CreateBoardColumnDTO,
   ) {
-    const originalCol = await this.getOneBoardColumn(userId, colId);
-    await this.boardColRepo.update(originalCol.id, boardColDTO);
+    await this.boardColRepo.update(colId, boardColDTO);
     return this.getOneBoardColumn(userId, colId);
   }
 }

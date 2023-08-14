@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import { Column, Entity, Index, PrimaryGeneratedColumn } from 'typeorm';
 
 type Rules = {
   action: string;
@@ -7,10 +7,12 @@ type Rules = {
 };
 
 @Entity()
+@Index(['label', 'boardId'], { unique: true })
 export class Role {
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
+  @Column()
   label: string;
 
   @Column()

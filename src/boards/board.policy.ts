@@ -9,26 +9,38 @@ export enum SUBJECT {
   BOARD = 'board',
   CARD = 'card',
   COLUMN = 'column',
+  INVITATION = 'invitaiton',
 }
 
 export enum BOARD_ACTIONS {
-  RENAME = 'rename',
+  EDIT = 'edit',
   DELETE = 'delete',
   ARCHIVE = 'archive',
   READ = 'read',
   CREATE_ROLE = 'create_role',
+  INVITE = 'invite',
 }
 
 export enum COLUMN_ACTIONS {
   RENAME = 'rename',
   MOVE = 'move',
-  DELETE = 'archive',
+  DELETE = 'delete',
   ARCHIVE = 'archive',
   READ = 'read',
+  CREATE = 'create',
+}
+
+export enum CARD_ACTIONS {
+  EDIT = 'edit',
+  MOVE = 'move',
+  DELETE = 'delete',
+  ARCHIVE = 'archive',
+  READ = 'read',
+  CREATE = 'create',
 }
 
 export interface BoardResourcePolicyParams {
-  action: BOARD_ACTIONS | COLUMN_ACTIONS;
+  action: BOARD_ACTIONS | COLUMN_ACTIONS | CARD_ACTIONS;
   subjectTag: SUBJECT;
   subjectObject?: Record<string, any>;
   boardId: string;

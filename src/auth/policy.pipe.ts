@@ -9,7 +9,7 @@ import { AuthPolicyDecoratorResult } from './authorization-policy.decorator';
 
 export type AuthPolicyFn<T extends AuthPolicy> = (
   params: Parameters<T['can']>[1],
-) => void;
+) => Promise<void> | void;
 
 @Injectable()
 export class PolicyBuilderPipe implements PipeTransform {

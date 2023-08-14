@@ -4,6 +4,12 @@ import { Repository } from 'typeorm';
 import { CreateBoardDTO } from './dto/create-board.dto';
 import { Board } from './entities/board.entity';
 
+type GetOneBoardParams = {
+  boardId: string;
+  loadMemberships?: boolean;
+  loadCards?: boolean;
+};
+
 @Injectable()
 export class BoardsService {
   constructor(
@@ -30,13 +36,20 @@ export class BoardsService {
     });
   }
 
-  async getOneBoard(userId: string, boardId: string) {
-    const board = await this.boardRepo.findOne({
-      where: { userId, id: boardId },
-      relations: { columns: { cards: true } },
+  async getOneBoard({
+    boardId,
+    loadMemberships = false,
+    loadCards = false,
+  }: GetOneBoardParams) {
+    const result = await this.boardRepo.findOne({
+      where: { id: boardId },
+      relations: {
+        members: loadMemberships,
+        columns: loadCards && { cards: true },
+      },
     });
 
-    return this.mightHaveFoundBoard(board);
+    return result;
   }
 
   async getBoardOwnerId(boardId: string) {
@@ -50,13 +63,11 @@ export class BoardsService {
     return result.userId;
   }
 
-  async deleteOneBoard(userId: string, boardId: string) {
-    const board = await this.getOneBoard(userId, boardId);
-    await this.boardRepo.delete(board);
+  async deleteOneBoard(boardId: string) {
+    await this.boardRepo.delete(boardId);
   }
 
-  async updateBoard(userId: string, boardId: string, boardDTO: CreateBoardDTO) {
-    const actualBoard = await this.getOneBoard(userId, boardId);
-    return this.boardRepo.update(actualBoard, boardDTO);
+  async updateBoard(boardId: string, boardDTO: CreateBoardDTO) {
+    return this.boardRepo.update(boardId, boardDTO);
   }
 }

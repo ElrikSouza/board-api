@@ -17,4 +17,14 @@ export class BoardMembersService {
     }
     return membership;
   }
+
+  createBoardMembership(userId: string, boardId: string, roleId: string) {
+    const membership = this.boardMembersRepo.create({
+      boardId,
+      roleId,
+      userId,
+    });
+
+    return this.boardMembersRepo.save(membership);
+  }
 }

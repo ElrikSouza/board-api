@@ -1,6 +1,7 @@
-import { BoardColumn } from 'src/board-columns/board-column.entity';
+import { BoardColumn } from 'src/boards/board-columns/board-column.entity';
 import { User } from 'src/users/user.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
+import { Board } from '../entities/board.entity';
 
 @Entity()
 export class Card {
@@ -20,6 +21,12 @@ export class Card {
 
   @Column()
   columnId: string;
+
+  @ManyToOne(() => Board)
+  board: Board;
+
+  @Column()
+  boardId: string;
 
   @Column()
   userId: string;

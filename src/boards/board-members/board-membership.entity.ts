@@ -22,4 +22,7 @@ export class BoardMembership {
 
   @ManyToOne(() => Role)
   role: Role;
+
+  @Column()
+  roleId: string;
 }
