@@ -42,7 +42,7 @@ export class BoardsController {
       action: BOARD_ACTIONS.READ,
       subjectTag: SUBJECT.BOARD,
       boardId: id,
-      ownerId: board.id,
+      ownerId: board.userId,
     });
 
     return board;

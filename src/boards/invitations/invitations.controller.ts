@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Post,
   UseGuards,
@@ -14,7 +15,7 @@ import { User } from 'src/users/user.entity';
 import { BoardMembersService } from '../board-members/board-members.service';
 import { BOARD_ACTIONS, BoardPolicy, SUBJECT } from '../board.policy';
 import { INVITATION_ACTIONS, InvitationPolicy } from './InvitationPolicy';
-import { InvitationDTO } from './invitation.dto';
+import { CreateInvitationDTO, InvitationDTO } from './invitation.dto';
 import { InvitationsService } from './invitations.service';
 
 @UseGuards(LoggedInGuard)
@@ -24,6 +25,11 @@ export class InvitationsController {
     private readonly invitationsService: InvitationsService,
     private readonly boardMembersService: BoardMembersService,
   ) {}
+
+  @Get('/invitations')
+  async getInvitations(@GetUser() user: User) {
+    return this.invitationsService.getInvitationsByUserId(user.id);
+  }
 
   @Post('/boards/:boardId/invitations')
   async inviteUser(
@@ -46,9 +52,28 @@ export class InvitationsController {
     });
   }
 
+  @Post('/boards/:boardId/invitations/bulk')
+  async inviteUserBulk(
+    @AuthorizationPolicy(BoardPolicy) authorize: AuthPolicyFn<BoardPolicy>,
+    @Param('boardId') boardId: string,
+    @Body() invitationDTO: CreateInvitationDTO[],
+    @GetUser() user: User,
+  ) {
+    await authorize({
+      action: BOARD_ACTIONS.INVITE,
+      subjectTag: SUBJECT.BOARD,
+      boardId: boardId,
+    });
+
+    await this.invitationsService.sendInvitationBulk(
+      invitationDTO,
+      user.id,
+      boardId,
+    );
+  }
+
   @Post('/invitations/:id/accept')
   async accept(
-    @GetUser() user: User,
     @Param('id') id: string,
     @AuthorizationPolicy(InvitationPolicy)
     authorize: AuthPolicyFn<InvitationPolicy>,

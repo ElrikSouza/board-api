@@ -1,6 +1,5 @@
 import { Card } from 'src/boards/cards/card.entity';
 import { Board } from 'src/boards/entities/board.entity';
-import { User } from 'src/users/user.entity';
 import {
   Column,
   Entity,
@@ -28,10 +27,4 @@ export class BoardColumn {
     eager: true,
   })
   cards: Card[];
-
-  @Column()
-  userId: string;
-
-  @ManyToOne(() => User)
-  user: User;
 }

@@ -3,7 +3,7 @@ import { IsBoolean, IsOptional } from 'class-validator';
 export class PermissionDTO {
   @IsBoolean()
   @IsOptional()
-  canMoveCard: boolean;
+  canEditCard: boolean;
 
   @IsBoolean()
   @IsOptional()
@@ -11,11 +11,7 @@ export class PermissionDTO {
 
   @IsBoolean()
   @IsOptional()
-  canOpenCard: boolean;
-
-  @IsBoolean()
-  @IsOptional()
-  canArchiveColumn: boolean;
+  canCreateCard: boolean;
 
   @IsBoolean()
   @IsOptional()
@@ -23,5 +19,17 @@ export class PermissionDTO {
 
   @IsBoolean()
   @IsOptional()
-  canMoveColumn: boolean;
+  canEditColumn: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  canCreateColumn: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  canInviteUsers: boolean;
+
+  @IsBoolean()
+  @IsOptional()
+  canCreateRoles: boolean;
 }

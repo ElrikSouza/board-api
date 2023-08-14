@@ -10,8 +10,6 @@ import {
 import { AuthorizationPolicy } from 'src/auth/authorization-policy.decorator';
 import { LoggedInGuard } from 'src/auth/logged-in.guard';
 import { AuthPolicyFn } from 'src/auth/policy.pipe';
-import { GetUser } from 'src/common/user.decorator';
-import { User } from 'src/users/user.entity';
 import { BoardPolicy, COLUMN_ACTIONS, SUBJECT } from '../board.policy';
 import { BoardColumnsService } from './board-columns.service';
 import { CreateBoardColumnDTO } from './dto/create-board-col.dto';
@@ -41,7 +39,6 @@ export class BoardColumnsController {
 
   @Post('boards/:boardId/board-columns')
   async createOne(
-    @GetUser() user: User,
     @Param('boardId') boardId: string,
     @Body() boardCol: CreateBoardColumnDTO,
     @AuthorizationPolicy(BoardPolicy) authorize: AuthPolicyFn<BoardPolicy>,
@@ -52,12 +49,11 @@ export class BoardColumnsController {
       boardId,
     });
 
-    return this.boardColumnsService.createOneColumn(user.id, boardId, boardCol);
+    return this.boardColumnsService.createOneColumn(boardId, boardCol);
   }
 
   @Patch('board-columns/:id')
   async patchOne(
-    @GetUser() user: User,
     @Param('id') colId: string,
     @Body() updateDTO: CreateBoardColumnDTO,
     @AuthorizationPolicy(BoardPolicy) authorize: AuthPolicyFn<BoardPolicy>,
@@ -66,12 +62,12 @@ export class BoardColumnsController {
       await this.boardColumnsService.getBoardOwnerAndBoardIdOfColumn(colId);
 
     await authorize({
-      action: COLUMN_ACTIONS.RENAME,
+      action: COLUMN_ACTIONS.EDIT,
       subjectTag: SUBJECT.COLUMN,
       ownerId,
       boardId,
     });
 
-    return this.boardColumnsService.updateOneColumn(user.id, colId, updateDTO);
+    return this.boardColumnsService.updateOneColumn(colId, updateDTO);
   }
 }

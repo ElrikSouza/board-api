@@ -22,12 +22,10 @@ export enum BOARD_ACTIONS {
 }
 
 export enum COLUMN_ACTIONS {
-  RENAME = 'rename',
-  MOVE = 'move',
   DELETE = 'delete',
-  ARCHIVE = 'archive',
   READ = 'read',
   CREATE = 'create',
+  EDIT = 'edit',
 }
 
 export enum CARD_ACTIONS {
@@ -79,7 +77,7 @@ export class BoardPolicy implements AuthPolicy {
 
     const taggedSubject = subject(
       policyParams.subjectTag,
-      policyParams.subjectObject,
+      policyParams.subjectObject ?? {},
     );
 
     return ability.can(policyParams.action, taggedSubject);

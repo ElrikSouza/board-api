@@ -10,8 +10,16 @@ export class BoardMembersService {
     private readonly boardMembersRepo: Repository<BoardMembership>,
   ) {}
 
-  getMembership(userId: string, boardId: string) {
-    const membership = this.boardMembersRepo.findOneBy({ userId, boardId });
+  async getMembership(userId: string, boardId: string) {
+    const membership = await this.boardMembersRepo.findOne({
+      where: {
+        userId,
+        boardId,
+      },
+      relations: {
+        role: true,
+      },
+    });
     if (!membership) {
       throw new ForbiddenException('no membership');
     }

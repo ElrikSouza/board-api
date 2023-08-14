@@ -1,6 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { BoardsService } from 'src/boards/boards.service';
 import { Repository } from 'typeorm';
 import { BoardColumn } from './board-column.entity';
 import { CreateBoardColumnDTO } from './dto/create-board-col.dto';
@@ -10,7 +9,6 @@ export class BoardColumnsService {
   constructor(
     @InjectRepository(BoardColumn)
     private readonly boardColRepo: Repository<BoardColumn>,
-    private readonly boardsService: BoardsService,
   ) {}
 
   async getBoardOwnerAndBoardIdOfColumn(colId: string) {
@@ -29,9 +27,9 @@ export class BoardColumnsService {
     };
   }
 
-  async getOneBoardColumn(userId: string, colId: string, cards = false) {
+  async getOneBoardColumn(colId: string, cards = false) {
     const boardCol = this.boardColRepo.findOne({
-      where: { id: colId, userId },
+      where: { id: colId },
       relations: { cards },
     });
 
@@ -46,26 +44,17 @@ export class BoardColumnsService {
     await this.boardColRepo.delete(colId);
   }
 
-  async createOneColumn(
-    userId: string,
-    boardId: string,
-    boardColDTO: CreateBoardColumnDTO,
-  ) {
+  async createOneColumn(boardId: string, boardColDTO: CreateBoardColumnDTO) {
     const newBoardCol = this.boardColRepo.create({
       ...boardColDTO,
-      userId,
       boardId,
     });
 
     return await this.boardColRepo.save(newBoardCol);
   }
 
-  async updateOneColumn(
-    userId: string,
-    colId: string,
-    boardColDTO: CreateBoardColumnDTO,
-  ) {
+  async updateOneColumn(colId: string, boardColDTO: CreateBoardColumnDTO) {
     await this.boardColRepo.update(colId, boardColDTO);
-    return this.getOneBoardColumn(userId, colId);
+    return this.getOneBoardColumn(colId);
   }
 }

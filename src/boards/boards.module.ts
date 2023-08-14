@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { UsersModule } from 'src/users/users.module';
 import { BoardColumn } from './board-columns/board-column.entity';
 import { BoardColumnsController } from './board-columns/board-columns.controller';
 import { BoardColumnsService } from './board-columns/board-columns.service';
@@ -13,6 +14,7 @@ import { Card } from './cards/card.entity';
 import { CardsController } from './cards/cards.controller';
 import { CardsService } from './cards/cards.service';
 import { Board } from './entities/board.entity';
+import { InvitationPolicy } from './invitations/InvitationPolicy';
 import { Invitation } from './invitations/invitation.entity';
 import { InvitationsController } from './invitations/invitations.controller';
 import { InvitationsService } from './invitations/invitations.service';
@@ -37,6 +39,7 @@ import { RolesService } from './roles/roles.service';
     BoardPolicy,
     BoardColumnsService,
     CardsService,
+    InvitationPolicy,
   ],
   imports: [
     TypeOrmModule.forFeature([
@@ -47,6 +50,7 @@ import { RolesService } from './roles/roles.service';
       BoardColumn,
       Card,
     ]),
+    UsersModule,
   ],
   exports: [BoardsService],
 })

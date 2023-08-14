@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { DataSource, Repository } from 'typeorm';
 import { CreateBoardDTO } from './dto/create-board.dto';
 import { Board } from './entities/board.entity';
 
@@ -14,6 +14,7 @@ type GetOneBoardParams = {
 export class BoardsService {
   constructor(
     @InjectRepository(Board) private readonly boardRepo: Repository<Board>,
+    private readonly dataSource: DataSource,
   ) {}
 
   private mightHaveFoundBoard(board?: Board) {
@@ -29,11 +30,20 @@ export class BoardsService {
     return this.boardRepo.save(newBoard);
   }
 
-  getUserBoards(userId: string) {
-    return this.boardRepo.find({
-      where: { userId },
-      relations: { columns: false },
-    });
+  async getUserBoards(userId: string) {
+    return this.dataSource
+      .createQueryBuilder()
+      .select('board')
+      .from(Board, 'board')
+      .leftJoin(
+        'board_membership',
+        'membership',
+        'membership.boardId = board.id',
+      )
+      .where(':userId in (membership.userId, board.userId)', {
+        userId,
+      })
+      .getMany();
   }
 
   async getOneBoard({
