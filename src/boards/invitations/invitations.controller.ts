@@ -15,7 +15,7 @@ import { User } from 'src/users/user.entity';
 import { BoardMembersService } from '../board-members/board-members.service';
 import { BOARD_ACTIONS, BoardPolicy, SUBJECT } from '../board.policy';
 import { INVITATION_ACTIONS, InvitationPolicy } from './InvitationPolicy';
-import { CreateInvitationDTO, InvitationDTO } from './invitation.dto';
+import { CreateBulkInvitationsDTO, InvitationDTO } from './invitation.dto';
 import { InvitationsService } from './invitations.service';
 
 @UseGuards(LoggedInGuard)
@@ -56,7 +56,7 @@ export class InvitationsController {
   async inviteUserBulk(
     @AuthorizationPolicy(BoardPolicy) authorize: AuthPolicyFn<BoardPolicy>,
     @Param('boardId') boardId: string,
-    @Body() invitationDTO: CreateInvitationDTO[],
+    @Body() invitationDTO: CreateBulkInvitationsDTO,
     @GetUser() user: User,
   ) {
     await authorize({
@@ -66,7 +66,7 @@ export class InvitationsController {
     });
 
     await this.invitationsService.sendInvitationBulk(
-      invitationDTO,
+      invitationDTO.invitations,
       user.id,
       boardId,
     );

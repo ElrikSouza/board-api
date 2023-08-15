@@ -1,5 +1,4 @@
 import { BoardColumn } from 'src/boards/board-columns/board-column.entity';
-import { User } from 'src/users/user.entity';
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from 'typeorm';
 import { Board } from '../entities/board.entity';
 
@@ -27,10 +26,4 @@ export class Card {
 
   @Column()
   boardId: string;
-
-  @Column()
-  userId: string;
-
-  @ManyToOne(() => User)
-  user: User;
 }

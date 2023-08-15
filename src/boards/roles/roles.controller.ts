@@ -1,4 +1,4 @@
-import { Body, Controller, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
 import { AuthorizationPolicy } from 'src/auth/authorization-policy.decorator';
 import { AuthPolicyFn } from 'src/auth/policy.pipe';
 import { BOARD_ACTIONS, BoardPolicy, SUBJECT } from '../board.policy';
@@ -26,5 +26,19 @@ export class RolesController {
     return this.rolesService.createRole(
       mapRoleDtoToCreateRoleBO(roleDTO, boardId),
     );
+  }
+
+  @Get()
+  async getBoardRoles(
+    @Param('boardId') boardId: string,
+    @AuthorizationPolicy(BoardPolicy) authorize: AuthPolicyFn<BoardPolicy>,
+  ) {
+    await authorize({
+      action: BOARD_ACTIONS.READ,
+      subjectTag: SUBJECT.BOARD,
+      boardId,
+    });
+
+    return this.rolesService.getBoardRoles(boardId);
   }
 }

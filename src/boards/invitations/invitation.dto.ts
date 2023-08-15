@@ -1,4 +1,5 @@
-import { IsEmail, IsOptional, IsUUID } from 'class-validator';
+import { Type } from 'class-transformer';
+import { IsEmail, IsOptional, IsUUID, ValidateNested } from 'class-validator';
 
 export class InvitationDTO {
   @IsUUID()
@@ -16,4 +17,10 @@ export class CreateInvitationDTO {
   @IsUUID()
   @IsOptional()
   roleId?: string;
+}
+
+export class CreateBulkInvitationsDTO {
+  @ValidateNested({ each: true })
+  @Type(() => CreateInvitationDTO)
+  invitations: CreateInvitationDTO[];
 }

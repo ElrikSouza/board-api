@@ -14,12 +14,14 @@ export class BoardColumnsService {
   async getBoardOwnerAndBoardIdOfColumn(colId: string) {
     const col = await this.boardColRepo.findOne({
       where: { id: colId },
+      relations: { board: true },
       select: ['board'],
     });
 
     if (!col) {
       throw new NotFoundException('');
     }
+
     const { userId, id } = col.board;
     return {
       boardId: id,

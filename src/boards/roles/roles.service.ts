@@ -14,4 +14,8 @@ export class RolesService {
     const role = this.roleRepo.create(createRole);
     return this.roleRepo.save(role);
   }
+
+  getBoardRoles(boardId: string) {
+    return this.roleRepo.findBy({ boardId });
+  }
 }

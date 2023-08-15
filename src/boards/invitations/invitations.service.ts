@@ -2,7 +2,7 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersService } from 'src/users/users.service';
 import { Repository } from 'typeorm';
-import { CreateInvitationBO } from './create-role.bo';
+import { CreateInvitationBO } from './create-invitation.bo';
 import { CreateInvitationDTO } from './invitation.dto';
 import { Invitation } from './invitation.entity';
 
@@ -30,12 +30,9 @@ export class InvitationsService {
     senderUserId: string,
     boardId: string,
   ) {
-    console.log(dto);
     const emailIdMap = await this.usersService.findUserIdsByEmail(
       dto.map(({ targetEmail }) => targetEmail),
     );
-
-    console.log(emailIdMap);
 
     const entities = dto.flatMap((one) => {
       if (!emailIdMap[one.targetEmail]) {

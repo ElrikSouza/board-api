@@ -5,14 +5,14 @@ import { User } from 'src/users/user.entity';
 import { BoardMembersService } from './board-members/board-members.service';
 import { BoardsService } from './boards.service';
 
-export enum SUBJECT {
+export const enum SUBJECT {
   BOARD = 'board',
   CARD = 'card',
   COLUMN = 'column',
   INVITATION = 'invitaiton',
 }
 
-export enum BOARD_ACTIONS {
+export const enum BOARD_ACTIONS {
   EDIT = 'edit',
   DELETE = 'delete',
   ARCHIVE = 'archive',
@@ -21,14 +21,14 @@ export enum BOARD_ACTIONS {
   INVITE = 'invite',
 }
 
-export enum COLUMN_ACTIONS {
+export const enum COLUMN_ACTIONS {
   DELETE = 'delete',
   READ = 'read',
   CREATE = 'create',
   EDIT = 'edit',
 }
 
-export enum CARD_ACTIONS {
+export const enum CARD_ACTIONS {
   EDIT = 'edit',
   MOVE = 'move',
   DELETE = 'delete',

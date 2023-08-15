@@ -38,17 +38,11 @@ export class CardsService {
     return card;
   }
 
-  async createOne(
-    userId: string,
-    boardId: string,
-    colId: string,
-    cardDTO: CreateCardDTO,
-  ) {
+  async createOne(boardId: string, colId: string, cardDTO: CreateCardDTO) {
     const newCard = this.cardRepo.create({
       ...cardDTO,
       columnId: colId,
       boardId,
-      userId,
     });
 
     return this.cardRepo.save(newCard);

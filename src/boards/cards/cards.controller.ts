@@ -10,8 +10,6 @@ import {
 import { AuthorizationPolicy } from 'src/auth/authorization-policy.decorator';
 import { LoggedInGuard } from 'src/auth/logged-in.guard';
 import { AuthPolicyFn } from 'src/auth/policy.pipe';
-import { GetUser } from 'src/common/user.decorator';
-import { User } from 'src/users/user.entity';
 import { BoardColumnsService } from '../board-columns/board-columns.service';
 import { BoardPolicy, CARD_ACTIONS, SUBJECT } from '../board.policy';
 import { CardsService } from './cards.service';
@@ -28,7 +26,6 @@ export class CardsController {
 
   @Post('/board-columns/:colId/cards')
   async createOneCard(
-    @GetUser() user: User,
     @Param('colId') colId: string,
     @Body() cardDTO: CreateCardDTO,
     @AuthorizationPolicy(BoardPolicy) authorize: AuthPolicyFn<BoardPolicy>,
@@ -43,7 +40,7 @@ export class CardsController {
       ownerId,
     });
 
-    return this.cardsService.createOne(user.id, boardId, colId, cardDTO);
+    return this.cardsService.createOne(boardId, colId, cardDTO);
   }
 
   @Delete('/cards/:id')
