@@ -83,6 +83,7 @@ export class InvitationsController {
     await authorize({ action: INVITATION_ACTIONS.ACCEPT, invitation });
 
     return this.boardMembersService.createBoardMembership(
+      invitation.id,
       invitation.invitedUserId,
       invitation.boardId,
       invitation.roleId,

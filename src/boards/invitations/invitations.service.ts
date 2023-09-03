@@ -68,6 +68,9 @@ export class InvitationsService {
   }
 
   async getInvitationsByUserId(userId: string) {
-    return this.invitationRepo.findBy({ invitedUserId: userId });
+    return this.invitationRepo.find({
+      where: { invitedUserId: userId },
+      relations: { senderUser: true, board: true },
+    });
   }
 }

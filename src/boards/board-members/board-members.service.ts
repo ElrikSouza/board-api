@@ -1,6 +1,7 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
+import { Invitation } from '../invitations/invitation.entity';
 import { BoardMembership } from './board-membership.entity';
 
 @Injectable()
@@ -27,14 +28,25 @@ export class BoardMembersService {
     return membership;
   }
 
-  async createBoardMembership(userId: string, boardId: string, roleId: string) {
-    const membership = this.boardMembersRepo.create({
-      boardId,
-      roleId,
-      userId,
-    });
+  async createBoardMembership(
+    invitationId: string,
+    userId: string,
+    boardId: string,
+    roleId: string,
+  ) {
+    const result = await this.dataSource.transaction((transactionManager) => {
+      const toInsert = transactionManager.create(BoardMembership, {
+        boardId,
+        roleId,
+        userId,
+      });
 
-    const result = await this.boardMembersRepo.save(membership);
+      const newMembership = transactionManager.save(toInsert);
+
+      transactionManager.delete(Invitation, { id: invitationId });
+
+      return newMembership;
+    });
 
     return result;
   }
