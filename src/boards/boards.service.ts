@@ -3,9 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { DataSource, Repository } from 'typeorm';
 import { CreateBoardDTO } from './dto/create-board.dto';
 import { Board } from './entities/board.entity';
-import { partialViewerRole } from './roles/default-role';
-import { Role } from './roles/role.entity';
-import { mapRoleDtoToCreateRoleBO } from './roles/role.mapper';
+import { RolesService } from './roles/roles.service';
 
 type GetOneBoardParams = {
   boardId: string;
@@ -18,6 +16,7 @@ export class BoardsService {
   constructor(
     @InjectRepository(Board) private readonly boardRepo: Repository<Board>,
     private readonly dataSource: DataSource,
+    private readonly roleService: RolesService,
   ) {}
 
   private mightHaveFoundBoard(board?: Board) {
@@ -28,15 +27,12 @@ export class BoardsService {
     return board;
   }
 
-  async createBoard(userId: string, boardDTO: CreateBoardDTO) {
-    const result = await this.dataSource.transaction(async (entityManager) => {
-      const newBoard = this.boardRepo.create({ ...boardDTO, userId });
-      const board = await entityManager.save<Board>(newBoard);
-      const role = mapRoleDtoToCreateRoleBO(partialViewerRole, board.id);
-      const newRole = entityManager.create<Role>(Role, role);
-      entityManager.save<Role>(newRole);
+  async createBoard(board: Board) {
+    const result = this.boardRepo.manager.transaction(async (transaction) => {
+      const newBoard = await transaction.save(board);
+      await this.roleService.createViewerRoleOnBoard(newBoard.id, transaction);
 
-      return board;
+      return newBoard;
     });
 
     return result;
@@ -90,6 +86,7 @@ export class BoardsService {
   }
 
   async updateBoard(boardId: string, boardDTO: CreateBoardDTO) {
-    return this.boardRepo.update(boardId, boardDTO);
+    await this.boardRepo.update(boardId, boardDTO);
+    return this.getOneBoard({ boardId });
   }
 }

@@ -32,7 +32,11 @@ export class UsersService {
       select: ['email', 'id'],
     });
 
-    return emailAndId.reduce(
+    return this.buildEmailUserIdMap(emailAndId);
+  }
+
+  private buildEmailUserIdMap(users: Pick<User, 'email' | 'id'>[]) {
+    return users.reduce(
       (prev, next) => ({ ...prev, [next.email]: next.id }),
       {},
     );
