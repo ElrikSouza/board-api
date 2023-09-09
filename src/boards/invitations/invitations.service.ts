@@ -1,10 +1,12 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { UsersService } from 'src/users/users.service';
-import { Repository } from 'typeorm';
-import { CreateInvitationBO } from './create-invitation.bo';
-import { CreateInvitationDTO } from './invitation.dto';
+import { EntityManager, Repository } from 'typeorm';
+import { BoardMembersService } from '../board-members/board-members.service';
+import { SendInvitationBO } from './bo/send-invitation.bo';
+import { SendInvitationsBulkBO } from './bo/send-invitations-bulk.bo';
 import { Invitation } from './invitation.entity';
+import { InvitationsMapper } from './invitations.mapper';
 
 @Injectable()
 export class InvitationsService {
@@ -12,39 +14,45 @@ export class InvitationsService {
     @InjectRepository(Invitation)
     private readonly invitationRepo: Repository<Invitation>,
     private readonly usersService: UsersService,
+    private readonly boardMembersService: BoardMembersService,
   ) {}
 
-  sendInvitation(invitaitonBO: CreateInvitationBO) {
-    const invitation = this.invitationRepo.create({
-      senderUserId: invitaitonBO.senderUserId,
-      boardId: invitaitonBO.boardId,
-      roleId: invitaitonBO.roleId,
-      invitedUserId: invitaitonBO.invitedUserId,
-    });
-
-    return this.invitationRepo.save(invitation);
-  }
-
-  async sendInvitationBulk(
-    dto: CreateInvitationDTO[],
-    senderUserId: string,
-    boardId: string,
-  ) {
-    const emailIdMap = await this.usersService.findUserIdsByEmail(
-      dto.map(({ targetEmail }) => targetEmail),
+  /**
+   * @throws {NotFoundException}
+   */
+  async sendInvitation(invitationBO: SendInvitationBO) {
+    const targetUser = await this.usersService.findByEmail(
+      invitationBO.targetEmail,
     );
 
-    const entities = dto.flatMap((one) => {
+    if (!targetUser) {
+      throw new NotFoundException('There is no user with this email');
+    }
+
+    const invitationEntity = InvitationsMapper.fromSendInvitationBoToEntity(
+      invitationBO,
+      { targetUser },
+    );
+
+    return this.invitationRepo.save(invitationEntity);
+  }
+
+  async sendInvitationBulk(sendInvitationsBulkBO: SendInvitationsBulkBO) {
+    const emails = sendInvitationsBulkBO.invitations.map(
+      ({ targetEmail }) => targetEmail,
+    );
+
+    const emailIdMap = await this.usersService.getUserIdEmailMapByEmail(emails);
+
+    const entities = sendInvitationsBulkBO.invitations.flatMap((one) => {
       if (!emailIdMap[one.targetEmail]) {
-        console.log('email not found', one.targetEmail);
         return [];
       }
 
-      return this.invitationRepo.create({
-        senderUserId,
-        boardId,
-        roleId: one.roleId,
-        invitedUserId: emailIdMap[one.targetEmail],
+      return InvitationsMapper.fromSendOneDTOToEntity(one, {
+        boardId: sendInvitationsBulkBO.boardId,
+        senderId: sendInvitationsBulkBO.senderId,
+        targetId: emailIdMap[one.targetEmail],
       });
     });
 
@@ -63,14 +71,33 @@ export class InvitationsService {
     return invitation;
   }
 
-  async deleteOneInvitation(invitationId: string) {
-    await this.invitationRepo.delete(invitationId);
+  async deleteOneInvitation(invitationId: string, transaction?: EntityManager) {
+    if (!transaction) {
+      this.invitationRepo.manager.transaction((t) => {
+        return this.deleteOneInvitation(invitationId, t);
+      });
+    }
+
+    await transaction.delete(Invitation, { id: invitationId });
   }
 
   async getInvitationsByUserId(userId: string) {
     return this.invitationRepo.find({
       where: { invitedUserId: userId },
       relations: { senderUser: true, board: true },
+    });
+  }
+
+  async acceptInvitation(invitation: Invitation) {
+    return this.invitationRepo.manager.transaction(async (transaction) => {
+      await this.boardMembersService.createBoardMembership(
+        invitation.invitedUserId,
+        invitation.boardId,
+        invitation.roleId,
+        transaction,
+      );
+
+      await transaction.delete(Invitation, { id: invitation.id });
     });
   }
 }

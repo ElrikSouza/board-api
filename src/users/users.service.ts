@@ -24,7 +24,9 @@ export class UsersService {
     await this.usersRepo.save(user);
   }
 
-  async findUserIdsByEmail(emails: string[]): Promise<Record<string, string>> {
+  async getUserIdEmailMapByEmail(
+    emails: string[],
+  ): Promise<Record<string, string>> {
     const emailAndId = await this.usersRepo.find({
       where: { email: In(emails) },
       select: ['email', 'id'],

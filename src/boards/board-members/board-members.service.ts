@@ -1,7 +1,6 @@
 import { ForbiddenException, Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { DataSource, Repository } from 'typeorm';
-import { Invitation } from '../invitations/invitation.entity';
+import { EntityManager, Repository } from 'typeorm';
 import { BoardMembership } from './board-membership.entity';
 
 @Injectable()
@@ -9,7 +8,6 @@ export class BoardMembersService {
   constructor(
     @InjectRepository(BoardMembership)
     private readonly boardMembersRepo: Repository<BoardMembership>,
-    private readonly dataSource: DataSource,
   ) {}
 
   async getMembership(userId: string, boardId: string) {
@@ -22,32 +20,34 @@ export class BoardMembersService {
         role: true,
       },
     });
+
     if (!membership) {
       throw new ForbiddenException('no membership');
     }
+
     return membership;
   }
 
   async createBoardMembership(
-    invitationId: string,
     userId: string,
     boardId: string,
     roleId: string,
+    transaction?: EntityManager,
   ) {
-    const result = await this.dataSource.transaction((transactionManager) => {
-      const toInsert = transactionManager.create(BoardMembership, {
-        boardId,
-        roleId,
-        userId,
+    if (!transaction) {
+      this.boardMembersRepo.manager.transaction((t) => {
+        return this.createBoardMembership(userId, boardId, roleId, t);
       });
+    }
 
-      const newMembership = transactionManager.save(toInsert);
-
-      transactionManager.delete(Invitation, { id: invitationId });
-
-      return newMembership;
+    const toInsert = transaction.create(BoardMembership, {
+      boardId,
+      roleId,
+      userId,
     });
 
-    return result;
+    const newMembership = transaction.save(toInsert);
+
+    return newMembership;
   }
 }
