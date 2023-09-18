@@ -1,0 +1,59 @@
+name: E2E Poc
+run-name: e2e poc
+
+on:
+  workflow_dispatch:
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  wait_for_e2e:
+    name: 'Set wait for e2e'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Login into github cli
+        env:
+          GIT_TOKEN: '${{ secrets.TOKEN }}'
+        run: echo ${GIT_TOKEN} | gh auth login --with-token
+
+      - name: Get pr branch
+        env:
+          PR_BODY: '${{ github.event.pull_request.body }}'
+        run: |
+          PR=$(echo "$PR_BODY" | grep "has-front-pr=" | { grep -v grep || true; })
+          IFS='='
+          read -ra arr <<< "$PR"
+          PR_URL=$(echo ${arr[1]} | xargs echo -n)
+          if [[ "$PR_URL" == "true" ]]
+          then
+            BACK_HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+
+            gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              /repos/ElrikSouza/board-api/statuses/$BACK_HEAD_SHA \
+              -f state='pending' \
+              -f description='Esperando testes do front terminarem' \
+              -f context='E2E Test'
+          else
+            echo "No PR url detected."
+          fi
+
+      - name: Unlock backend pr if needed
+        run: |
+          echo $PRE_MERGE_SHA
+          if [[ ! "$PRE_MERGE_SHA" == "ignore" ]]
+          then
+            gh api \
+              --method POST \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              /repos/ElrikSouza/board-api/statuses/$PRE_MERGE_SHA \
+              -f state='success' \
+              -f description='Testes e2e passaram' \
+              -f context='E2E Test' \
+              -f target_url="https://github.com/ElrikSouza/board-next-ui/pull/${{ github.event.pull_request.number}}"
+          fi
