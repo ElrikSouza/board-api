@@ -2,12 +2,10 @@ import { Type } from 'class-transformer';
 import { IsEmail, IsOptional, IsUUID, ValidateNested } from 'class-validator';
 
 export class InvitationDTO {
-  @IsUUID()
-  targetUserId: string;
-
-  @IsUUID()
-  @IsOptional()
-  roleId?: string;
+  id: string;
+  senderUserName: string;
+  boardName: string;
+  boardId: string;
 }
 
 export class CreateInvitationDTO {

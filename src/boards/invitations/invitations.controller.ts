@@ -12,30 +12,34 @@ import { LoggedInGuard } from 'src/auth/logged-in.guard';
 import { AuthPolicyFn } from 'src/auth/policy.pipe';
 import { GetUser } from 'src/common/user.decorator';
 import { User } from 'src/users/user.entity';
-import { BoardMembersService } from '../board-members/board-members.service';
 import { BOARD_ACTIONS, BoardPolicy, SUBJECT } from '../board.policy';
 import { INVITATION_ACTIONS, InvitationPolicy } from './InvitationPolicy';
-import { CreateBulkInvitationsDTO, InvitationDTO } from './invitation.dto';
+import {
+  CreateBulkInvitationsDTO,
+  CreateInvitationDTO,
+} from './invitation.dto';
+import { InvitationsMapper } from './invitations.mapper';
 import { InvitationsService } from './invitations.service';
 
 @UseGuards(LoggedInGuard)
 @Controller('')
 export class InvitationsController {
-  constructor(
-    private readonly invitationsService: InvitationsService,
-    private readonly boardMembersService: BoardMembersService,
-  ) {}
+  constructor(private readonly invitationsService: InvitationsService) {}
 
   @Get('/invitations')
   async getInvitations(@GetUser() user: User) {
-    return this.invitationsService.getInvitationsByUserId(user.id);
+    const invitations = await this.invitationsService.getInvitationsByUserId(
+      user.id,
+    );
+
+    return invitations.map(InvitationsMapper.fromEntityToDTO);
   }
 
   @Post('/boards/:boardId/invitations')
   async inviteUser(
     @AuthorizationPolicy(BoardPolicy) authorize: AuthPolicyFn<BoardPolicy>,
     @Param('boardId') boardId: string,
-    @Body() invitationDTO: InvitationDTO,
+    @Body() invitationDTO: CreateInvitationDTO,
     @GetUser() user: User,
   ) {
     await authorize({
@@ -44,12 +48,12 @@ export class InvitationsController {
       boardId: boardId,
     });
 
-    await this.invitationsService.sendInvitation({
+    const sendOneBO = InvitationsMapper.fromSendOneDTOToBO(invitationDTO, {
       boardId,
-      invitedUserId: invitationDTO.targetUserId,
-      roleId: invitationDTO?.roleId,
-      senderUserId: user.id,
+      senderId: user.id,
     });
+
+    await this.invitationsService.sendInvitation(sendOneBO);
   }
 
   @Post('/boards/:boardId/invitations/bulk')
@@ -65,11 +69,12 @@ export class InvitationsController {
       boardId: boardId,
     });
 
-    await this.invitationsService.sendInvitationBulk(
-      invitationDTO.invitations,
-      user.id,
-      boardId,
+    const invitationsBulkBO = InvitationsMapper.fromSendBulkDTOToBulkBO(
+      invitationDTO,
+      { boardId, senderUser: user },
     );
+
+    await this.invitationsService.sendInvitationBulk(invitationsBulkBO);
   }
 
   @Post('/invitations/:id/accept')
@@ -82,12 +87,7 @@ export class InvitationsController {
 
     await authorize({ action: INVITATION_ACTIONS.ACCEPT, invitation });
 
-    return this.boardMembersService.createBoardMembership(
-      invitation.id,
-      invitation.invitedUserId,
-      invitation.boardId,
-      invitation.roleId,
-    );
+    await this.invitationsService.acceptInvitation(invitation);
   }
 
   @Delete('/invitations/:id')
