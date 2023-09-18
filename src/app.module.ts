@@ -47,7 +47,7 @@ export class AppModule {
           resave: false,
           cookie: {
             sameSite: false,
-            httpOnly: false,
+            httpOnly: true,
             maxAge: 600000000,
             secure: false,
             path: '/',

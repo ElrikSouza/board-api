@@ -29,7 +29,7 @@ export class BoardsService {
 
   async createBoard(board: Board) {
     const result = this.boardRepo.manager.transaction(async (transaction) => {
-      const newBoard = await transaction.save(board);
+      const newBoard = await transaction.save(Board, board);
       await this.roleService.createViewerRoleOnBoard(newBoard.id, transaction);
 
       return newBoard;

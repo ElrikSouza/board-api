@@ -25,7 +25,7 @@ export class RolesService {
     }
 
     const viewerRole = mapRoleDtoToCreateRoleBO(partialViewerRole, boardId);
-    transaction.save(viewerRole);
+    transaction.save(Role, viewerRole);
   }
 
   getBoardRoles(boardId: string) {
